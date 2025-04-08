@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -36,11 +36,16 @@ export async function GET(request: Request) {
       current: currentRes.data.data[0], // Weatherbit nests current data in "data" array
       forecast: forecastRes.data.data, // Forecast is an array of daily data
     });
-  } catch (error: any) {
-    console.error('Weatherbit API Error:', error.response?.data || error.message);
+  } catch (error) {
+    // Type the error as AxiosError with a generic response type
+    const axiosError = error as AxiosError<{ message?: string }>;
+    console.error('Weatherbit API Error:', axiosError.response?.data || axiosError.message || 'Unknown error');
     return NextResponse.json(
-      { error: 'Weather fetch failed', details: error.response?.data || error.message },
-      { status: error.response?.status || 400 }
+      {
+        error: 'Weather fetch failed',
+        details: axiosError.response?.data || axiosError.message || 'Unknown error',
+      },
+      { status: axiosError.response?.status || 500 }
     );
   }
 }
