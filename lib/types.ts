@@ -25,10 +25,10 @@ export interface ForecastData {
 }
 
 export interface WeatherRequest {
-  id?: number;
+  id?: number; // Matches serialized BigInt-to-number output
   location: string;
-  dateRangeStart?: string;
-  dateRangeEnd?: string;
-  temperatures?: { date: string; temp: number }[]; // Updated to array
-  createdAt?: string;
+  dateRangeStart?: string | Date | null;
+  dateRangeEnd?: string | Date | null;
+  temperatures?: { date: string; temp: number }[] | null;
+  createdAt?: string | Date;
 }

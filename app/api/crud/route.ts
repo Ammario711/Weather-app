@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { WeatherRequest } from '@/lib/types';
 
+// Use WeatherRequest type instead of any
 const serializeBigInt = (data: any) => {
   return JSON.parse(
     JSON.stringify(data, (key, value) =>
@@ -93,16 +94,28 @@ export async function POST(request: Request) {
 
     const serializedData = serializeBigInt(data);
     return NextResponse.json(serializedData, { status: 201 });
-  } catch (error: any) {
-    console.error('Error:', error.response?.data || error.message);
+  } catch (error: unknown) {
+    let errorMessage = 'Unknown error';
+    let errorStatus = 500;
+    let errorDetails: any = null;
+
+    if (error instanceof AxiosError) {
+      errorMessage = 'Weather API request failed';
+      errorStatus = error.response?.status || 500;
+      errorDetails = error.response?.data || error.message;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+      errorDetails = error.message;
+    }
+
+    console.error('Error:', errorDetails || error);
     return NextResponse.json(
-      { error: 'Failed to save data', details: error.response?.data || error.message },
-      { status: error.response?.status || 500 }
+      { error: `Failed to save data: ${errorMessage}`, details: errorDetails },
+      { status: errorStatus }
     );
   }
 }
 
-// GET, PUT, DELETE unchanged (for now)
 export async function GET() {
   try {
     const data = await prisma.weatherRequest.findMany();
