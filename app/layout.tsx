@@ -6,8 +6,8 @@ import QueryProvider from '@/components/query-provider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Weather App by [Your Name]',
-  description: 'Built for PM Accelerator (https://www.linkedin.com/company/product-manager-accelerator)',
+  title: 'Weather App by Ammar Arshad',
+  description: 'Built for PM Accelerator',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
