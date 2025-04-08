@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model WeatherRequest {
+  id             BigInt    @id @default(autoincrement())
+  location       String
+  dateRangeStart DateTime? @map("date_range_start")
+  dateRangeEnd   DateTime? @map("date_range_end")
+  temperatures   Json?     @map("temperatures") // Array of { date: string, temp: number }
+  createdAt      DateTime  @default(now()) @map("created_at")
+}

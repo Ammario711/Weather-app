@@ -17,6 +17,7 @@ export interface ForecastData {
   datetime: string;
   max_temp: number;
   min_temp: number;
+  temp: number; // Added for consistency
   weather: {
     description: string;
     icon: string;
@@ -24,10 +25,10 @@ export interface ForecastData {
 }
 
 export interface WeatherRequest {
-  id?: number; // Optional for inserts (auto-incremented by Supabase)
+  id?: number;
   location: string;
-  date_range_start: string;
-  date_range_end: string;
-  temperature?: number; // Optional as it might not always be provided
-  created_at?: string; // Optional, set by Supabase with default NOW()
+  dateRangeStart?: string;
+  dateRangeEnd?: string;
+  temperatures?: { date: string; temp: number }[]; // Updated to array
+  createdAt?: string;
 }
