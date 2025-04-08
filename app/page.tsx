@@ -1,103 +1,109 @@
-import Image from "next/image";
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Search, MapPin, Loader2 } from "lucide-react"
+import WeatherDisplay from "@/components/weather-display"
+import ForecastDisplay from "@/components/forecast-display"
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [location, setLocation] = useState("")
+  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null)
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  const {
+    data: weather,
+    error,
+    isRefetching,
+    refetch,
+  } = useQuery({
+    queryKey: ["weather", location, coords],
+    queryFn: async () => {
+      const query = coords ? `lat=${coords.lat}&lon=${coords.lon}` : `location=${encodeURIComponent(location)}`
+      const res = await fetch(`/api/weather?${query}`)
+      if (!res.ok) throw new Error("Failed to fetch weather")
+      return res.json()
+    },
+    enabled: false,
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setCoords(null)
+    refetch()
+  }
+
+  const getCurrentLocation = () => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude })
+        setLocation("")
+        refetch()
+      },
+      () => alert("Location access denied"),
+    )
+  }
+
+  return (
+    <main className="mx-auto max-w-4xl px-4 py-8">
+      <div className="mb-8 text-center">
+        <h1 className="mb-2 text-3xl font-bold tracking-tight">Weather Forecast</h1>
+        <p className="text-muted-foreground">Get accurate weather information for any location</p>
+      </div>
+
+      <div className="mx-auto mb-8 max-w-2xl rounded-xl bg-gradient-to-r from-sky-50 to-blue-50 p-6 shadow-sm dark:from-slate-900 dark:to-slate-800">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Enter city or zip code"
+              className="pl-10 pr-4"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+            <Button type="submit" disabled={!location || isRefetching} className="w-full sm:w-auto">
+              {isRefetching ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Searching...
+                </>
+              ) : (
+                "Get Weather"
+              )}
+            </Button>
+            <Button variant="outline" onClick={getCurrentLocation} disabled={isRefetching} className="w-full sm:w-auto">
+              <MapPin className="mr-2 h-4 w-4" />
+              Use Current Location
+            </Button>
+          </div>
+        </form>
+      </div>
+
+      {error && (
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-600 dark:border-red-900 dark:bg-red-950/50 dark:text-red-400">
+          <p>Error: {(error as Error).message}</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+      )}
+
+      {weather && (
+        <div className="space-y-6">
+          <WeatherDisplay weather={weather.current} />
+          <ForecastDisplay forecast={weather.forecast} />
+        </div>
+      )}
+
+      {!weather && !error && (
+        <div className="mt-12 text-center text-muted-foreground">
+          <p>Enter a location to see the weather forecast</p>
+        </div>
+      )}
+    </main>
+  )
 }
