@@ -12,6 +12,6 @@ model WeatherRequest {
   location       String
   dateRangeStart DateTime? @map("date_range_start")
   dateRangeEnd   DateTime? @map("date_range_end")
-  temperatures   Json?     @map("temperatures") // Array of { date: string, temp: number }
+  temperatures   Json?     @map("temperatures") 
   createdAt      DateTime  @default(now()) @map("created_at")
 }

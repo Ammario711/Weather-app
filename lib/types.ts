@@ -17,7 +17,7 @@ export interface ForecastData {
   datetime: string;
   max_temp: number;
   min_temp: number;
-  temp: number; // Added for consistency
+  temp: number; 
   weather: {
     description: string;
     icon: string;
@@ -25,7 +25,7 @@ export interface ForecastData {
 }
 
 export interface WeatherRequest {
-  id?: number; // Matches serialized BigInt-to-number output
+  id?: number; 
   location: string;
   dateRangeStart?: string | Date | null;
   dateRangeEnd?: string | Date | null;

@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import axios, { AxiosError } from 'axios';
 import { WeatherRequest } from '@/lib/types';
 
-// Use WeatherRequest type instead of any
+
 const serializeBigInt = (data: any) => {
   return JSON.parse(
     JSON.stringify(data, (key, value) =>

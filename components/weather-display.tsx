@@ -29,7 +29,7 @@ export default function WeatherDisplay({ weather }: WeatherDisplayProps) {
     return () => clearInterval(interval)
   }, [])
 
-  // Determine background gradient based on weather condition
+  
   const getWeatherGradient = () => {
     const icon = weather.weather.icon
 

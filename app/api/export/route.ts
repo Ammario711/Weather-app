@@ -9,11 +9,11 @@ export async function GET(request: Request) {
   try {
     const data = await prisma.weatherRequest.findMany();
     const serializedData = data.map((item) => ({
-      id: Number(item.id), // Convert BigInt to number
+      id: Number(item.id), 
       location: item.location,
       dateRangeStart: item.dateRangeStart?.toISOString().split('T')[0] || null,
       dateRangeEnd: item.dateRangeEnd?.toISOString().split('T')[0] || null,
-      temperatures: item.temperatures || [], // Already JSON-compatible
+      temperatures: item.temperatures || [], 
       createdAt: item.createdAt.toISOString(),
     }));
 
